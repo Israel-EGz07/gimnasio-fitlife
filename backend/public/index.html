@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gimnasio FitLife</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="#" class="nav-logo">
+        <img src="Imagenes/logogym.jpg" alt="FitLife">
+        <span>FitLife</span>
+      </a>
+      <ul class="nav-menu">
+        <li><a href="#inicio" class="nav-link">Inicio</a></li>
+        <li><a href="#planes" class="nav-link">Planes</a></li>
+        <li><a href="#galeria" class="nav-link">Galería</a></li>
+        <li><a href="#opiniones" class="nav-link">Opiniones</a></li>
+        <li><a href="#contacto" class="nav-link">Contacto</a></li>
+      </ul>
+      <div class="nav-auth">
+        <button id="btn-login-nav" class="btn-nav" onclick="showAuthModal('login')">Iniciar Sesión</button>
+        <button id="btn-register-nav" class="btn-nav btn-primary" onclick="showAuthModal('register')">Registrarse</button>
+        <div id="user-menu" class="user-menu" style="display: none;">
+          <span id="user-greeting">Hola, Usuario</span>
+          <button onclick="logout()" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Salir</button>
+        </div>
+      </div>
+      <div class="nav-toggle">
+        <i class="fas fa-bars"></i>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Auth Modal -->
+  <div id="auth-modal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeAuthModal()">&times;</span>
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="login" onclick="switchAuthTab('login')">Iniciar Sesión</button>
+        <button class="auth-tab" data-tab="register" onclick="switchAuthTab('register')">Registrarse</button>
+      </div>
+      <div id="login-form-container">
+        <form id="loginForm">
+          <div class="form-group">
+            <i class="fas fa-envelope"></i>
+            <input type="email" name="email" placeholder="Correo electrónico" required>
+          </div>
+          <div class="form-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" name="password" placeholder="Contraseña" required>
+          </div>
+          <button type="submit" class="btn-submit"><i class="fas fa-sign-in-alt"></i> Entrar</button>
+        </form>
+      </div>
+      <div id="register-form-container" style="display: none;">
+        <form id="registroForm">
+          <div class="form-group">
+            <i class="fas fa-user"></i>
+            <input type="text" name="nombre" placeholder="Nombre completo" required>
+          </div>
+          <div class="form-group">
+            <i class="fas fa-envelope"></i>
+            <input type="email" name="email" placeholder="Correo electrónico" required>
+          </div>
+          <div class="form-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" name="password" placeholder="Contraseña (mín. 6 caracteres)" required>
+          </div>
+          <button type="submit" class="btn-submit"><i class="fas fa-user-plus"></i> Registrarse</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <section id="inicio" class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1>Transforma Tu Cuerpo,<br>Cambia Tu Vida</h1>
+      <p>Únete a la comunidad fitness más grande y alcanza tus metas con los mejores profesionales</p>
+      <div class="hero-buttons">
+        <button class="btn-hero btn-primary" onclick="showAuthModal('register')">Comenzar Ahora</button>
+        <button class="btn-hero btn-outline" onclick="document.getElementById('planes').scrollIntoView({behavior: 'smooth'})">Ver Planes</button>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="stat-number">500+</span>
+          <span class="stat-label">Miembros</span>
+        </div>
+        <div class="hero-stat">
+          <span class="stat-number">20+</span>
+          <span class="stat-label">Entrenadores</span>
+        </div>
+        <div class="hero-stat">
+          <span class="stat-number">10+</span>
+          <span class="stat-label">Años de Experiencia</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section id="estadisticas" class="stats-section">
+    <div class="container">
+      <h2 class="section-title"><span>Nuestras</span> Estadísticas</h2>
+      <div id="stats-container" class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fas fa-users"></i></div>
+          <h3 class="stat-number" data-count="0">0</h3>
+          <p>Miembros Activos</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fas fa-dumbbell"></i></div>
+          <h3 class="stat-number" data-count="0">0</h3>
+          <p>Suscripciones</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+          <h3 class="stat-number" data-prefix="$" data-count="0">$0</h3>
+          <p>Plan Promedio</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fas fa-layer-group"></i></div>
+          <h3 class="stat-number" data-count="0">0</h3>
+          <p>Planes Disponibles</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Plans Section -->
+  <section id="planes" class="planes-section">
+    <div class="container">
+      <h2 class="section-title"><span>Elige Tu</span> Plan</h2>
+      <p class="section-subtitle">Planes diseñados para adaptarse a tus necesidades</p>
+      <div id="planes" class="planes-grid"></div>
+    </div>
+  </section>
+
+  <!-- User Dashboard (visible when logged in) -->
+  <section id="dashboard-section" class="dashboard-section" style="display: none;">
+    <div class="container">
+      <div class="dashboard-header">
+        <h2><i class="fas fa-user-circle"></i> Mi Panel Personal</h2>
+        <p>Bienvenido, <span id="dashboard-user-name"></span></p>
+      </div>
+      <div class="dashboard-grid">
+        <div class="dashboard-card profile-card">
+          <div class="card-icon"><i class="fas fa-id-card"></i></div>
+          <h3>Mi Perfil</h3>
+          <div class="profile-info">
+            <p><strong>Nombre:</strong> <span id="profile-nombre"></span></p>
+            <p><strong>Email:</strong> <span id="profile-email"></span></p>
+            <p><strong>Miembro desde:</strong> <span id="profile-fecha"></span></p>
+          </div>
+        </div>
+        <div class="dashboard-card plan-card">
+          <div class="card-icon"><i class="fas fa-dumbbell"></i></div>
+          <h3>Mi Plan</h3>
+          <div id="user-plan-info">
+            <p class="no-plan">No tienes un plan activo</p>
+          </div>
+          <button id="btn-cambiar-plan" class="btn-dashboard" onclick="showPlansSection()">Cambiar Plan</button>
+        </div>
+        <div class="dashboard-card subscription-card">
+          <div class="card-icon"><i class="fas fa-history"></i></div>
+          <h3>Historial</h3>
+          <div id="user-history" class="history-list">
+            <p class="no-data">Sin suscripciones anteriores</p>
+          </div>
+        </div>
+        <div class="dashboard-card quick-actions">
+          <div class="card-icon"><i class="fas fa-bolt"></i></div>
+          <h3>Acciones Rápidas</h3>
+          <div class="action-buttons">
+            <button class="action-btn" onclick="showPlansSection()">
+              <i class="fas fa-plus"></i> Nuevo Plan
+            </button>
+            <button class="action-btn" onclick="document.getElementById('opiniones').scrollIntoView({behavior: 'smooth'})">
+              <i class="fas fa-star"></i> Dejar Opinión
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="contacto" class="about-section">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-content">
+          <h2 class="section-title"><span>Sobre</span> FitLife</h2>
+          <div id="info" class="info-card">
+            <p id="descripcion"></p>
+            <div class="info-details">
+              <div class="info-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <span id="ubicacion"></span>
+              </div>
+              <div class="info-item">
+                <i class="fas fa-envelope"></i>
+                <span id="contacto"></span>
+              </div>
+              <div class="info-item">
+                <i class="fas fa-phone"></i>
+                <span id="telefono"></span>
+              </div>
+            </div>
+            <div class="horario">
+              <h3><i class="fas fa-clock"></i> Horarios de Atención</h3>
+              <pre id="horario"></pre>
+            </div>
+          </div>
+        </div>
+        <div class="about-image">
+          <img src="frontend/Imagenes/logogym.jpg" alt="Gimnasio FitLife">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery Section -->
+  <section id="galeria" class="gallery-section">
+    <div class="container">
+      <h2 class="section-title"><span>Nuestra</span> Galería</h2>
+      <p class="section-subtitle">Conoce nuestras instalaciones</p>
+      <div class="gallery-grid">
+        <div class="gallery-item">
+          <img src="frontend/Imagenes/logogym.jpg" alt="Gimnasio">
+          <div class="gallery-overlay">
+            <i class="fas fa-dumbbell"></i>
+            <span>Área de Pesas</span>
+          </div>
+        </div>
+        <div class="gallery-item">
+          <img src="frontend/Imagenes/logogym.jpg" alt="Cardio">
+          <div class="gallery-overlay">
+            <i class="fas fa-running"></i>
+            <span>Zona Cardio</span>
+          </div>
+        </div>
+        <div class="gallery-item">
+          <img src="frontend/Imagenes/logogym.jpg" alt="Clases">
+          <div class="gallery-overlay">
+            <i class="fas fa-users"></i>
+            <span>Salón de Clases</span>
+          </div>
+        </div>
+        <div class="gallery-item">
+          <img src="frontend/Imagenes/logogym.jpg" alt="Vestidores">
+          <div class="gallery-overlay">
+            <i class="fas fa-shirt"></i>
+            <span>Vestidores</span>
+          </div>
+        </div>
+        <div class="gallery-item">
+          <img src="frontend/Imagenes/logogym.jpg" alt="Spa">
+          <div class="gallery-overlay">
+            <i class="fas fa-spa"></i>
+            <span>Área de Recuperación</span>
+          </div>
+        </div>
+        <div class="gallery-item">
+          <img src="frontend/Imagenes/logogym.jpg" alt="Recepción">
+          <div class="gallery-overlay">
+            <i class="fas fa-door-open"></i>
+            <span>Recección</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Payment Methods Section -->
+  <section class="payment-section">
+    <div class="container">
+      <h2 class="section-title"><span>Métodos de</span> Pago</h2>
+      <p class="section-subtitle">Facilidades de pago para ti</p>
+      <div class="payment-grid">
+        <div class="payment-card">
+          <div class="payment-icon"><i class="fas fa-credit-card"></i></div>
+          <h3>Tarjetas de Crédito</h3>
+          <p>Aceptamos Visa, Mastercard y American Express</p>
+        </div>
+        <div class="payment-card">
+          <div class="payment-icon"><i class="fas fa-credit-card"></i></div>
+          <h3>Tarjetas de Débito</h3>
+          <p>Pago con cualquier tarjeta de débito bancaria</p>
+        </div>
+        <div class="payment-card">
+          <div class="payment-icon"><i class="fas fa-mobile-alt"></i></div>
+          <h3>Transferencia</h3>
+          <p>Transferencia electrónica o SPEI</p>
+        </div>
+        <div class="payment-card">
+          <div class="payment-icon"><i class="fas fa-money-bill-wave"></i></div>
+          <h3>Efectivo</h3>
+          <p>Pago en efectivo en nuestras instalaciones</p>
+        </div>
+        <div class="payment-card">
+          <div class="payment-icon"><i class="fab fa-paypal"></i></div>
+          <h3>PayPal</h3>
+          <p>Paga de forma segura con PayPal</p>
+        </div>
+        <div class="payment-card">
+          <div class="payment-icon"><i class="fas fa-calendar-alt"></i></div>
+          <h3>Pagos Mensuales</h3>
+          <p>Sin cargos extra, pagos flexibles cada mes</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reviews Section -->
+  <section id="opiniones" class="reviews-section">
+    <div class="container">
+      <h2 class="section-title"><span>Lo que dicen</span> Nuestros Clientes</h2>
+      <p class="section-subtitle">Opiniones verificadas de nuestra comunidad</p>
+      <div id="reseñas-container" class="reviews-grid"></div>
+      
+      <div class="review-form-wrapper">
+        <h3><i class="fas fa-pen"></i> Comparte tu Experiencia</h3>
+        <form id="resena-form" class="review-form">
+          <div class="form-row">
+            <div class="form-group">
+              <i class="fas fa-user"></i>
+              <input type="text" id="resena-nombre" placeholder="Tu nombre" required>
+            </div>
+            <div class="form-group">
+              <i class="fas fa-envelope"></i>
+              <input type="email" id="resena-email" placeholder="Tu correo (opcional)">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Tu calificación:</label>
+            <div class="rating-select">
+              <input type="radio" name="rating" value="5" id="star5"><label for="star5"><i class="fas fa-star"></i></label>
+              <input type="radio" name="rating" value="4" id="star4"><label for="star4"><i class="fas fa-star"></i></label>
+              <input type="radio" name="rating" value="3" id="star3"><label for="star3"><i class="fas fa-star"></i></label>
+              <input type="radio" name="rating" value="2" id="star2"><label for="star2"><i class="fas fa-star"></i></label>
+              <input type="radio" name="rating" value="1" id="star1"><label for="star1"><i class="fas fa-star"></i></label>
+            </div>
+          </div>
+          <div class="form-group">
+            <textarea id="resena-comentario" placeholder="Tu opinión (opcional)" rows="4"></textarea>
+          </div>
+          <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> Enviar Opinión</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Auth Section (hidden when using modal) -->
+  <section id="auth-section" class="auth-section" style="display: none;">
+    <div id="mensaje"></div>
+    <form id="inscripcion" class="subscription-form card" style="display:none">
+      <h3><i class="fas fa-user-check"></i> Inscribirse a un Plan</h3>
+      <label for="planSelect">Selecciona tu plan:</label>
+      <select id="planSelect" required></select>
+      <button type="submit" class="btn-submit"><i class="fas fa-check"></i> Inscribirse</button>
+    </form>
+    <form id="pago" class="payment-form card" style="display:none">
+      <h3><i class="fas fa-credit-card"></i> Pagar: <span id="planElegido"></span></h3>
+      <button type="submit" class="btn-submit"><i class="fas fa-credit-card"></i> Confirmar Pago</button>
+    </form>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-about">
+          <h3><img src="frontend/Imagenes/logogym.jpg" alt="FitLife"> FitLife</h3>
+          <p>Tu camino hacia una vida saludable comienza aquí. Únete a nuestra comunidad y alcanza tus metas fitness.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Enlaces Rápidos</h4>
+          <ul>
+            <li><a href="#inicio">Inicio</a></li>
+            <li><a href="#planes">Planes</a></li>
+            <li><a href="#opiniones">Opiniones</a></li>
+            <li><a href="#contacto">Contacto</a></li>
+          </ul>
+        </div>
+        <div class="footer-contact">
+          <h4>Contacto</h4>
+          <p><i class="fas fa-map-marker-alt"></i> <span id="footer-ubicacion"></span></p>
+          <p><i class="fas fa-phone"></i> <span id="footer-telefono"></span></p>
+          <p><i class="fas fa-envelope"></i> <span id="footer-contacto"></span></p>
+        </div>
+        <div class="footer-social">
+          <h4>Síguenos</h4>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2024 Gimnasio FitLife. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="frontend/js/main.js"></script>
+</body>
+</html>

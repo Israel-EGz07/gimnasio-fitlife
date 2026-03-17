@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const path = require('path');
 const infoRoutes = require('./routes/info');
 const plansRoutes = require('./routes/plans');
 const usersRoutes = require('./routes/users');
@@ -17,6 +18,14 @@ app.use('/api', usersRoutes);
 app.use('/api', subscriptionsRoutes);
 app.use('/api', statsRoutes);
 app.use('/api', resenasRoutes);
+
+// Servir archivos estáticos del frontend
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Ruta raíz sirve el frontend
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 const PORT = 3001;
 app.listen(PORT, () => {
