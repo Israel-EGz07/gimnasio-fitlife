@@ -1,5 +1,8 @@
 // Lógica principal del frontend para Gimnasio FitLife
-const API_URL = 'http://localhost:3001/api';
+// Cambia esta URL por tu backend en producción
+const API_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:3001/api' 
+  : 'https://gimnasio-fitlife.onrender.com/api';
 
 // Estado global
 let currentUser = null;
