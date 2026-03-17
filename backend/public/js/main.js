@@ -211,9 +211,16 @@ async function loadPlanes() {
   }
 }
 
-// Seleccionar plan (para usuarios no logueados)
+// Seleccionar plan
 function selectPlan(planId, planNombre) {
-  showAuthModal('register');
+  if (currentUser) {
+    // Usuario logueado: seleccionar plan y mostrar formulario de inscripción
+    document.getElementById('plan-select').value = planId;
+    document.getElementById('inscripcion-section').scrollIntoView({ behavior: 'smooth' });
+  } else {
+    // Usuario no logueado: mostrar modal de registro
+    showAuthModal('register');
+  }
 }
 
 // Cargar estadísticas con animación
