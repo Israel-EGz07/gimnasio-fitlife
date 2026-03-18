@@ -47,7 +47,7 @@ async function init() {
             email TEXT,
             accion TEXT NOT NULL,
             detalle TEXT,
-            creado_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
           );
         `);
 
@@ -60,7 +60,7 @@ async function init() {
             plan_nombre TEXT,
             monto REAL,
             fecha_inicio TEXT,
-            creado_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
           );
         `);
 
@@ -69,13 +69,26 @@ async function init() {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nombre TEXT NOT NULL,
             email TEXT,
+            usuario_id INTEGER,
             calificacion INTEGER NOT NULL CHECK(calificacion >= 1 AND calificacion <= 5),
             comentario TEXT,
+            util_count INTEGER DEFAULT 0,
             aprobado INTEGER DEFAULT 0,
-            creado_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
           );
         `, (runErr) => {
           if (runErr) return reject(runErr);
+
+          // Agregar columnas si no existen (para migraciones)
+          db.run('ALTER TABLE reseñas ADD COLUMN usuario_id INTEGER', () => {});
+          db.run('ALTER TABLE reseñas ADD COLUMN util_count INTEGER DEFAULT 0', () => {});
+
+          // Migración: agregar columnas fecha_fin y estado a suscripciones
+          db.run('ALTER TABLE suscripciones ADD COLUMN fecha_fin TEXT', () => {});
+          db.run('ALTER TABLE suscripciones ADD COLUMN estado TEXT DEFAULT "activa"', () => {});
+          
+          // Migración: agregar columna created_at a suscripciones (si no existe)
+          db.run('ALTER TABLE suscripciones ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP', () => {});
 
           // Semilla inicial de planes: siempre verificar que existan los planes base
         const defaultPlans = [

@@ -10,7 +10,7 @@ const { isEmail, isPositiveInteger } = require('../utils/validation');
 router.post('/inscribir', async (req, res) => {
   const { email, planId } = req.body;
 
-  if (!isEmail(email) || !isPositiveInteger(planId)) {
+  if (!isEmail(email) || !isPositiveInteger(parseInt(planId))) {
     return res.status(400).json({ error: 'Datos inválidos' });
   }
 

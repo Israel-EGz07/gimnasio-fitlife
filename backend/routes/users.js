@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
+const db = require('../db');
 const users = require('../models/users');
 const suscripciones = require('../models/suscripciones');
 const registros = require('../models/registros');
 const { isEmail, isPositiveInteger } = require('../utils/validation');
+const { verificarExpiracion } = require('../models/suscripciones');
 
 // Registro de usuario
 router.post('/registro', async (req, res) => {
@@ -97,25 +99,47 @@ router.get('/usuario', async (req, res) => {
     }
 
     // Obtener historial de suscripciones
-    const [suscripcionesData] = await require('../db').query(
-      'SELECT * FROM suscripciones WHERE email = ? ORDER BY creado_at DESC',
+    const [suscripcionesData] = await db.query(
+      'SELECT * FROM suscripciones WHERE email = ? ORDER BY created_at DESC',
       [email]
     );
 
     // Obtener historial de registros
-    const [registrosData] = await require('../db').query(
-      'SELECT * FROM registros WHERE email = ? ORDER BY creado_at DESC LIMIT 20',
+    const [registrosData] = await db.query(
+      'SELECT * FROM registros WHERE email = ? ORDER BY created_at DESC LIMIT 20',
       [email]
     );
 
     // Obtener info del plan actual
     let planActual = null;
+    let suscripcionActual = null;
+    let suscripcionStatus = { expirada: true, diasRestantes: 0 };
+    
     if (user.plan_id) {
-      const [planes] = await require('../db').query(
+      const [planes] = await db.query(
         'SELECT * FROM planes WHERE id = ?',
         [user.plan_id]
       );
       planActual = planes[0] || null;
+      
+      // Obtener suscripción activa más reciente
+      if (suscripcionesData && suscripcionesData.length > 0) {
+        suscripcionActual = suscripcionesData[0];
+        
+        // Verificar expiración
+        if (suscripcionActual.fecha_fin) {
+          suscripcionStatus = verificarExpiracion(suscripcionActual.fecha_fin);
+          
+          // Actualizar estado si está vencida
+          if (suscripcionStatus.expirada && suscripcionActual.estado === 'activa') {
+            await db.query(
+              'UPDATE suscripciones SET estado = "vencida" WHERE id = ?',
+              [suscripcionActual.id]
+            );
+            suscripcionActual.estado = 'vencida';
+          }
+        }
+      }
     }
 
     res.json({
@@ -124,6 +148,8 @@ router.get('/usuario', async (req, res) => {
       email: user.email,
       plan_id: user.plan_id,
       planActual,
+      suscripcionActual,
+      suscripcionStatus,
       suscripciones: suscripcionesData,
       historial: registrosData,
       created_at: user.created_at

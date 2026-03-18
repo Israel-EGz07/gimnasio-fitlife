@@ -141,7 +141,7 @@
     <div class="container">
       <h2 class="section-title"><span>Elige Tu</span> Plan</h2>
       <p class="section-subtitle">Planes diseñados para adaptarse a tus necesidades</p>
-      <div id="planes" class="planes-grid"></div>
+      <div id="planes-grid" class="planes-grid"></div>
     </div>
   </section>
 
@@ -164,11 +164,16 @@
         </div>
         <div class="dashboard-card plan-card">
           <div class="card-icon"><i class="fas fa-dumbbell"></i></div>
-          <h3>Mi Plan</h3>
+          <h3>Mi Suscripción</h3>
+          <div id="suscripcion-status" class="suscripcion-status">
+            <!-- Estado de suscripción: activo/vencido -->
+          </div>
           <div id="user-plan-info">
             <p class="no-plan">No tienes un plan activo</p>
           </div>
-          <button id="btn-cambiar-plan" class="btn-dashboard" onclick="showPlansSection()">Cambiar Plan</button>
+          <div id="cambiar-plan-container" style="display: none;">
+            <button id="btn-cambiar-plan" class="btn-dashboard" onclick="showPlansSection()">Cambiar Plan</button>
+          </div>
         </div>
         <div class="dashboard-card subscription-card">
           <div class="card-icon"><i class="fas fa-history"></i></div>
@@ -273,7 +278,7 @@
           <img src="Imagenes/logogym.jpg" alt="Recepción">
           <div class="gallery-overlay">
             <i class="fas fa-door-open"></i>
-            <span>Recección</span>
+            <span>Recepción</span>
           </div>
         </div>
       </div>
@@ -325,10 +330,50 @@
     <div class="container">
       <h2 class="section-title"><span>Lo que dicen</span> Nuestros Clientes</h2>
       <p class="section-subtitle">Opiniones verificadas de nuestra comunidad</p>
+      
+      <!-- Statistics Section -->
+      <div id="reseñas-stats" class="reviews-stats">
+        <div class="stats-summary">
+          <div class="stats-average">
+            <span class="average-number" id="stats-promedio">0.0</span>
+            <div class="average-stars" id="stats-estrellas"></div>
+            <span class="total-reviews" id="stats-total">0 reseñas</span>
+          </div>
+        </div>
+        <div class="stats-distribution">
+          <div class="distribution-row" data-stars="5">
+            <span class="stars-label">5 estrellas</span>
+            <div class="progress-bar"><div class="progress-fill" id="bar-5"></div></div>
+            <span class="count" id="count-5">0</span>
+          </div>
+          <div class="distribution-row" data-stars="4">
+            <span class="stars-label">4 estrellas</span>
+            <div class="progress-bar"><div class="progress-fill" id="bar-4"></div></div>
+            <span class="count" id="count-4">0</span>
+          </div>
+          <div class="distribution-row" data-stars="3">
+            <span class="stars-label">3 estrellas</span>
+            <div class="progress-bar"><div class="progress-fill" id="bar-3"></div></div>
+            <span class="count" id="count-3">0</span>
+          </div>
+          <div class="distribution-row" data-stars="2">
+            <span class="stars-label">2 estrellas</span>
+            <div class="progress-bar"><div class="progress-fill" id="bar-2"></div></div>
+            <span class="count" id="count-2">0</span>
+          </div>
+          <div class="distribution-row" data-stars="1">
+            <span class="stars-label">1 estrella</span>
+            <div class="progress-bar"><div class="progress-fill" id="bar-1"></div></div>
+            <span class="count" id="count-1">0</span>
+          </div>
+        </div>
+      </div>
+      
       <div id="reseñas-container" class="reviews-grid"></div>
       
       <div class="review-form-wrapper">
-        <h3><i class="fas fa-pen"></i> Comparte tu Experiencia</h3>
+        <h3 id="form-title"><i class="fas fa-pen"></i> Comparte tu Experiencia</h3>
+        <p id="form-subtitle" class="form-subtitle">Tu opinión nos ayuda a mejorar</p>
         <form id="resena-form" class="review-form">
           <div class="form-row">
             <div class="form-group">

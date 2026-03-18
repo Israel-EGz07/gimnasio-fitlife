@@ -13,9 +13,36 @@ router.get('/resenas', async (req, res) => {
   }
 });
 
+// GET /api/resenas/stats - Obtener estadísticas de reseñas
+router.get('/resenas/stats', async (req, res) => {
+  try {
+    const stats = await resenas.getEstadisticas();
+    res.json(stats);
+  } catch (err) {
+    console.error('Error en /api/resenas/stats:', err);
+    res.status(500).json({ error: 'Error al obtener estadísticas' });
+  }
+});
+
+// POST /api/resenas/:id/util - Incrementar contador de "me fue útil"
+router.post('/resenas/:id/util', async (req, res) => {
+  const { id } = req.params;
+  
+  try {
+    const result = await resenas.incrementUtil(id);
+    if (result === 0) {
+      return res.status(404).json({ error: 'Reseña no encontrada' });
+    }
+    res.json({ ok: true, mensaje: 'Contador actualizado' });
+  } catch (err) {
+    console.error('Error en /api/resenas/:id/util:', err);
+    res.status(500).json({ error: 'Error al actualizar contador' });
+  }
+});
+
 // POST /api/resenas - Crear nueva reseña
 router.post('/resenas', async (req, res) => {
-  const { nombre, email, calificacion, comentario } = req.body;
+  const { nombre, email, calificacion, comentario, usuario_id } = req.body;
 
   if (!nombre || !calificacion) {
     return res.status(400).json({ error: 'Nombre y calificación son requeridos' });
@@ -26,7 +53,7 @@ router.post('/resenas', async (req, res) => {
   }
 
   try {
-    const id = await resenas.addReseña({ nombre, email, calificacion, comentario });
+    const id = await resenas.addReseña({ nombre, email, calificacion, comentario, usuario_id });
     res.json({ ok: true, mensaje: 'Reseña enviada correctamente. Será visible tras ser aprobada.', id });
   } catch (err) {
     console.error('Error en POST /api/resenas:', err);

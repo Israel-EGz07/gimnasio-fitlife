@@ -21,7 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
   loadPlanes();
   loadStats();
   loadReseñas();
+  loadReseñasStats();
   checkLoginStatus();
+  updateResenaFormForUser();
   setupEventListeners();
   
   // Copiar datos al footer
@@ -168,7 +170,7 @@ async function loadPlanes() {
     const response = await fetch(`${API_URL}/planes`);
     const planes = await response.json();
 
-    const planesContainer = document.getElementById('planes');
+    const planesContainer = document.getElementById('planes-grid');
     if (!planesContainer) return;
 
     planesContainer.innerHTML = '';
@@ -215,8 +217,8 @@ async function loadPlanes() {
 function selectPlan(planId, planNombre) {
   if (currentUser) {
     // Usuario logueado: seleccionar plan y mostrar formulario de inscripción
-    document.getElementById('plan-select').value = planId;
-    document.getElementById('inscripcion-section').scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('planSelect').value = planId;
+    document.getElementById('auth-section').scrollIntoView({ behavior: 'smooth' });
   } else {
     // Usuario no logueado: mostrar modal de registro
     showAuthModal('register');
@@ -315,6 +317,57 @@ function updateUIForLoggedInUser(user) {
     if (profileEmail) profileEmail.textContent = user.email;
     if (profileFecha) profileFecha.textContent = new Date(user.created_at).toLocaleDateString();
     
+    // Mostrar estado de suscripción
+    const suscripcionStatus = document.getElementById('suscripcion-status');
+    const cambiarPlanContainer = document.getElementById('cambiar-plan-container');
+    
+    // Verificar expiración
+    const status = user.suscripcionStatus || { expirada: true, diasRestantes: 0 };
+    const suscripcion = user.suscripcionActual;
+    
+    if (suscripcionStatus) {
+      if (user.planActual && user.plan_id && suscripcion) {
+        // Tiene plan activo
+        const estadoClase = status.expirada ? 'expired' : 'active';
+        const estadoTexto = status.expirada ? 'Vencida' : 'Activa';
+        const estadoIcono = status.expirada ? 'fa-clock' : 'fa-check-circle';
+        
+        suscripcionStatus.innerHTML = `
+          <div class="status-badge ${estadoClase}">
+            <i class="fas ${estadoIcono}"></i>
+            <span>${estadoTexto}</span>
+          </div>
+          <p class="dias-restantes">${status.expirada ? 'Tu plan venció' : `${status.diasRestantes} días restantes`}</p>
+          <p class="fecha-fin">Vence: ${new Date(suscripcion.fecha_fin).toLocaleDateString()}</p>
+        `;
+        
+        // Mostrar botón cambiar plan si está vencido o siempre visible para cambiar
+        if (cambiarPlanContainer) {
+          cambiarPlanContainer.style.display = 'block';
+          const btnCambiarPlan = document.getElementById('btn-cambiar-plan');
+          if (btnCambiarPlan) {
+            btnCambiarPlan.textContent = status.expirada ? 'Renovar Plan' : 'Cambiar Plan';
+          }
+        }
+      } else {
+        // No tiene plan activo
+        suscripcionStatus.innerHTML = `
+          <div class="status-badge expired">
+            <i class="fas fa-times-circle"></i>
+            <span>Sin Plan</span>
+          </div>
+        `;
+        
+        if (cambiarPlanContainer) {
+          cambiarPlanContainer.style.display = 'block';
+          const btnCambiarPlan = document.getElementById('btn-cambiar-plan');
+          if (btnCambiarPlan) {
+            btnCambiarPlan.textContent = 'Adquirir Plan';
+          }
+        }
+      }
+    }
+    
     // Mostrar plan actual
     const userPlanInfo = document.getElementById('user-plan-info');
     if (userPlanInfo) {
@@ -323,6 +376,7 @@ function updateUIForLoggedInUser(user) {
           <p><strong>Plan:</strong> ${user.planActual.nombre}</p>
           <p><strong>Precio:</strong> $${user.planActual.precio}/mes</p>
           <p><strong>Descripción:</strong> ${user.planActual.descripcion}</p>
+          <p><strong>Inicio:</strong> ${suscripcion ? new Date(suscripcion.fecha_inicio).toLocaleDateString() : '-'}</p>
         `;
       } else {
         userPlanInfo.innerHTML = '<p class="no-plan">No tienes un plan activo</p>';
@@ -332,14 +386,21 @@ function updateUIForLoggedInUser(user) {
     // Mostrar historial
     const userHistory = document.getElementById('user-history');
     if (userHistory && user.suscripciones && user.suscripciones.length > 0) {
-      userHistory.innerHTML = user.suscripciones.slice(0, 5).map(s => 
-        `<p><strong>${s.plan_nombre}</strong> - $${s.monto} (${new Date(s.creado_at).toLocaleDateString()})</p>`
-      ).join('');
+      userHistory.innerHTML = user.suscripciones.slice(0, 5).map(s => {
+        const estado = s.estado === 'activa' ? 'active' : (s.estado === 'vencida' ? 'expired' : '');
+        return `<p><strong>${s.plan_nombre}</strong> - $${s.monto} (${new Date(s.creado_at).toLocaleDateString()})</p>`;
+      }).join('');
     }
   }
 
   // Cerrar modal si está abierto
   closeAuthModal();
+}
+
+// Función para verificar si el plan está vencido (expuesta globalmente)
+function isPlanExpirado(userData) {
+  if (!userData || !userData.suscripcionStatus) return true;
+  return userData.suscripcionStatus.expirada;
 }
 
 // Manejar registro
@@ -556,11 +617,72 @@ function showMessage(msg, type) {
   }, 3000);
 }
 
+// Cargar estadísticas de reseñas
+async function loadReseñasStats() {
+  try {
+    const response = await fetch(`${API_URL}/resenas/stats`);
+    const stats = await response.json();
+
+    const promedioEl = document.getElementById('stats-promedio');
+    const totalEl = document.getElementById('stats-total');
+    const estrellasEl = document.getElementById('stats-estrellas');
+
+    if (promedioEl) {
+      promedioEl.textContent = stats.promedio || '0.0';
+    }
+    if (totalEl) {
+      totalEl.textContent = `${stats.total || 0} reseñas`;
+    }
+    if (estrellasEl) {
+      const promedio = parseFloat(stats.promedio) || 0;
+      const fullStars = Math.round(promedio);
+      estrellasEl.innerHTML = '★'.repeat(fullStars) + '☆'.repeat(5 - fullStars);
+    }
+
+    // Actualizar barras de distribución
+    const total = stats.total || 0;
+    const distribucion = [
+      { stars: 5, count: stats.cinco_estrellas || 0 },
+      { stars: 4, count: stats.cuatro_estrellas || 0 },
+      { stars: 3, count: stats.tres_estrellas || 0 },
+      { stars: 2, count: stats.dos_estrellas || 0 },
+      { stars: 1, count: stats.uno_estrellas || 0 }
+    ];
+
+    distribucion.forEach(d => {
+      const barEl = document.getElementById(`bar-${d.stars}`);
+      const countEl = document.getElementById(`count-${d.stars}`);
+      const percentage = total > 0 ? (d.count / total) * 100 : 0;
+      
+      if (barEl) barEl.style.width = `${percentage}%`;
+      if (countEl) countEl.textContent = d.count;
+    });
+  } catch (err) {
+    console.error('Error cargando estadísticas de reseñas:', err);
+  }
+}
+
 // Cargar reseñas
 async function loadReseñas() {
   try {
     const response = await fetch(`${API_URL}/resenas`);
+    
+    // Verificar que la respuesta sea exitosa
+    if (!response.ok) {
+      throw new Error(`Error HTTP: ${response.status}`);
+    }
+    
     const reseñas = await response.json();
+
+    // Verificar que la respuesta sea un array
+    if (!Array.isArray(reseñas)) {
+      console.error('La respuesta no es un array:', reseñas);
+      const container = document.getElementById('reseñas-container');
+      if (container) {
+        container.innerHTML = '<p class="no-reseñas">Error al cargar las reseñas. Por favor, intenta más tarde.</p>';
+      }
+      return;
+    }
 
     const container = document.getElementById('reseñas-container');
     if (!container) return;
@@ -573,20 +695,86 @@ async function loadReseñas() {
     }
 
     reseñas.forEach(r => {
+      const isVerified = r.usuario_id != null;
+      const utilCount = r.util_count || 0;
+      
       const div = document.createElement('div');
       div.className = 'review-card';
       div.innerHTML = `
         <div class="review-header">
-          <span class="reviewer-name">${r.nombre}</span>
+          <div class="reviewer-info">
+            <span class="reviewer-name">${r.nombre}</span>
+            ${isVerified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i> Verificado</span>' : ''}
+          </div>
           <span class="review-stars">${'★'.repeat(r.calificacion)}${'☆'.repeat(5 - r.calificacion)}</span>
         </div>
         <p class="review-text">${r.comentario || 'Sin comentario'}</p>
-        <span class="review-date">${new Date(r.creado_at).toLocaleDateString()}</span>
+        <div class="review-footer">
+          <span class="review-date">${new Date(r.creado_at).toLocaleDateString()}</span>
+          <button class="util-btn" onclick="handleUtil(${r.id})" data-id="${r.id}">
+            <i class="fas fa-thumbs-up"></i> <span class="util-count">${utilCount}</span> Me fue útil
+          </button>
+        </div>
       `;
       container.appendChild(div);
     });
   } catch (err) {
     console.error('Error cargando reseñas:', err);
+  }
+}
+
+// Manejar botón "me fue útil"
+async function handleUtil(resenaId) {
+  if (!currentUser) {
+    showMessage('Inicia sesión para marcar esta reseña como útil', 'info');
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/resenas/${resenaId}/util`, {
+      method: 'POST'
+    });
+    const result = await response.json();
+
+    if (result.ok) {
+      // Actualizar el contador en la UI
+      const btn = document.querySelector(`.util-btn[data-id="${resenaId}"]`);
+      if (btn) {
+        const countSpan = btn.querySelector('.util-count');
+        const currentCount = parseInt(countSpan.textContent) || 0;
+        countSpan.textContent = currentCount + 1;
+        btn.classList.add('util-active');
+        btn.disabled = true;
+      }
+      showMessage('¡Gracias por tu retroalimentación!', 'success');
+    }
+  } catch (err) {
+    console.error('Error al marcar como útil:', err);
+  }
+}
+
+// Actualizar formulario de reseñas según estado de usuario
+function updateResenaFormForUser() {
+  const formTitle = document.getElementById('form-title');
+  const formSubtitle = document.getElementById('form-subtitle');
+  const nombreInput = document.getElementById('resena-nombre');
+  const emailInput = document.getElementById('resena-email');
+
+  if (currentUser && currentUser.id) {
+    if (formTitle) {
+      formTitle.innerHTML = '<i class="fas fa-pen"></i> Comparte tu Experiencia <span class="verified-badge"><i class="fas fa-check-circle"></i> Usuario Verificado</span>';
+    }
+    if (formSubtitle) {
+      formSubtitle.textContent = 'Tu opinión como miembro verificado tiene más peso';
+    }
+    if (nombreInput) {
+      nombreInput.value = currentUser.nombre || '';
+      nombreInput.readOnly = true;
+    }
+    if (emailInput) {
+      emailInput.value = currentUser.email || '';
+      emailInput.readOnly = true;
+    }
   }
 }
 
@@ -609,11 +797,14 @@ async function handleNuevaResena(e) {
     return;
   }
 
+  // Incluir usuario_id si está logueado
+  const usuario_id = currentUser?.id || null;
+
   try {
     const response = await fetch(`${API_URL}/resenas`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nombre, email, calificacion, comentario })
+      body: JSON.stringify({ nombre, email, calificacion, comentario, usuario_id })
     });
 
     const result = await response.json();
